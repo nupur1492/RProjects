@@ -2,6 +2,7 @@
 # EXPLORATORY DATA ANALYSIS: UDACITY
 #Analyzing pseudo_facebook dataset
 
+#load required libraries
 library(ggplot2)
 library(gridExtra)
 library(reshape2)
