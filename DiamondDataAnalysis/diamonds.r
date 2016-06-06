@@ -4,7 +4,7 @@ library(ggplot2)
 library(reshape2)
 library(GGally)
 
-#load diamond dataset; comes with RStudio
+#load diamond dataset
 diamonds <- data(diamonds)
 
 # Histogram of diamond prices, faceted by diamond cut
