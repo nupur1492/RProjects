@@ -6,22 +6,28 @@ head(df_battles)
 library(ggplot2)
 
 #Which region had most battles?
-qplot(x = region, data = df_battles,color = attacker_king)
+ggplot(aes(x = region), data = df_battles,color = attacker_king)+
+  geom_bar(aes(fill = factor(attacker_king)))
 
-#Which year had most battles?
+#Which year had most battles? Who was the attcker; who won?
 df_battles$year <- as.factor(df_battles$year)
-qplot(x = year, data = df_battles)
+ggplot(aes(x = year), data = df_battles)+
+  geom_bar(aes(fill = factor(attacker_king)))+
+  facet_wrap(~attacker_outcome)
   
 # Most battles initiated by king? what was the outcome
 df_battles_clean <- df_battles[!is.na(df_battles$attacker_outcome),]
-qplot(x = attacker_king, data = df_battles[!is.na(df_battles$attacker_outcome),])+
+ggplot(aes(x = attacker_king), data = df_battles[!is.na(df_battles$attacker_outcome),])+
+  geom_bar(aes(fill = battle_type))+
   facet_wrap(~attacker_outcome)
 
-#Most battles defended
-qplot(x = defender_king, data = df_battles)
+#Most battles defended; what was the outcome?
+ggplot(aes(x = defender_king), data = df_battles)+
+  geom_bar(aes(fill = attacker_outcome))
 
-#Which type of battle was most fought?
-qplot(x = battle_type, data = df_battles)
+#Which type of battle was most fought at what location?
+ggplot(aes(x = location), data = df_battles)+
+  geom_bar(aes(fill = factor(battle_type)))
 
 
 #attacker size vs defender size; outcome of battle
