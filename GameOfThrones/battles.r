@@ -33,4 +33,7 @@ ggplot(aes(x = attacker_size, y = defender_size), data = df_battles_1)+
   geom_point(aes(color = attacker_outcome))
 
 
-
+#which commander was most successfull
+ggplot(aes(x = attacker_size, y = attacker_commander), data = df_battles)+
+  geom_point(stat = "identity", aes(fill = factor(attacker_king), shape = attacker_outcome))+
+  scale_x_continuous(limits = c(0,22000), breaks = seq(0,22000,2000))
