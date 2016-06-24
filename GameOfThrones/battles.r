@@ -43,3 +43,19 @@ ggplot(aes(x = attacker_size, y = defender_size), data = df_battles_1)+
 ggplot(aes(x = attacker_size, y = attacker_commander), data = df_battles)+
   geom_point(stat = "identity", aes(fill = factor(attacker_king), shape = attacker_outcome))+
   scale_x_continuous(limits = c(0,22000), breaks = seq(0,22000,2000))
+
+
+#learning plotly
+library(plotly)
+
+p1 <- plot_ly(df_battles, x = region)
+p1
+
+p2 <- plot_ly(df_battles, x = region, type = "bar")
+p2
+
+p3 <- plot_ly(df_battles, x = region, mode = "markers")
+p3
+
+p4 <- plot_ly(df_battles, x = region, mode = "markers", color = attacker_outcome)
+p4
