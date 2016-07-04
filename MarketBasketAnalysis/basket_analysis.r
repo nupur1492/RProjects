@@ -4,12 +4,18 @@
 df_groceries <- read.csv("groceries.csv")
 str(df_groceries)
 
+df_sorted <- df_groceries[order(df_groceries$Member_number),]
+
+
+#convert member number to numeric
+df_sorted$Member_number <- as.numeric(df_sorted$Member_number)
+
 
 #convert item description to categorical format
 
-df_groceries$itemDescription <- as.factor(df$itemDescription)
+df_sorted$itemDescription <- as.factor(df_sorted$itemDescription)
 
-str(df)
+str(df_sorted)
 
 #convert dataframe to transaction format using ddply; 
 
@@ -52,10 +58,11 @@ if(sessionInfo()['basePkgs']=="tm" | sessionInfo()['otherPkgs']=="tm"){
   detach(package:tm, unload=TRUE)
 }
 
+
 #view rules
 inspect(basket_rules)
 
-#convert to datframe and view
+#convert to datframe and view; optional
 df_basket <- as(basket_rules,"data.frame")
 df_basket$confidence <- df_basket$confidence * 100
 df_basket$support <- df_basket$support * nrow(df)
