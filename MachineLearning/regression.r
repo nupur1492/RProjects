@@ -47,3 +47,21 @@ summary(fit5_mlr)
 
 plot(medv ~ lstat, Boston)
 points(Boston$lstat, fitted(fit5_mlr),pch = 20, col = "red")
+
+#Qualitative predictors
+data("Carseats")
+summary(Carseats)
+
+qfit1 <- lm(Sales ~ .,Carseats)
+summary(qfit1)
+
+#Function for plotting different predictors
+reg_plot <- function(x,y,...) {
+  ffit <- lm(y~x)
+  plot(x,y,...)
+  abline(ffit, col = "red")
+}
+
+reg_plot(Carseats$Advertising, Carseats$Sales, 
+         xlab = "Advertising", ylab = "Sales", 
+         col = "green", pch=20)
