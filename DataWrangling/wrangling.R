@@ -48,5 +48,19 @@ df_seattle <- na.omit(df_seattle)
 str(df_seattle)
 
 
+# Summarizing data
 
+# 1. using summary()
+summary(df_seattle)
 
+# 2. summary of numerical variables based on a categorical variables
+summary2 <- ddply(df_seattle, .(ADDRTYPE), numcolwise(median))
+summary2
+
+# Summarize using dplyr
+summary3 <- df_seattle %>%
+            dplyr::group_by(ADDRTYPE, HITPARKEDCAR) %>%
+            dplyr::summarise(Median_PersonCount = median(PERSONCOUNT),
+                             Median_Distance = median(DISTANCE)) %>%
+            dplyr::arrange(ADDRTYPE)
+summary3
