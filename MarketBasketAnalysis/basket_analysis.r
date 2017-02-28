@@ -1,7 +1,7 @@
 #Implementing Market Basket Analysis using Apriori Algorithm
 
 #read transactions
-df_groceries <- read.csv("groceries.csv")
+df_groceries <- read.csv("Groceries_dataset.csv")
 str(df_groceries)
 
 df_sorted <- df_groceries[order(df_groceries$Member_number),]
@@ -34,7 +34,7 @@ df_itemList$Date <- NULL
 colnames(df_itemList) <- c("itemList")
 
 #write to csv format
-write.csv(df_itemList,"ItemList.csv", row.names = TRUE)
+write.csv(df_itemList,"ItemList.csv", quote = FALSE, row.names = TRUE)
 
 #-------------------- association rule mining algorithm : apriori -------------------------#
 
@@ -42,14 +42,14 @@ write.csv(df_itemList,"ItemList.csv", row.names = TRUE)
 library(arules)
 
 #convert csv file to basket format
-txn = read.transactions(file="ItemList.csv", rm.duplicates= TRUE, format="basket",sep=",",cols=1);
+txn = read.transactions(file="ItemList.csv", rm.duplicates= FALSE, format="basket",sep=",",cols=1);
 
 #remove quotes from transactions
 txn@itemInfo$labels <- gsub("\"","",txn@itemInfo$labels)
 
 
 #run apriori algorithm
-basket_rules <- apriori(txn,parameter = list(minlen=2,sup = 0.01, conf = 0.1, target="rules"))
+basket_rules <- apriori(txn,parameter = list(minlen=2,sup = 0.001, conf = 0.01, target="rules"))
 #basket_rules <- apriori(txn,parameter = list(minlen=2,sup = 0.00001, conf = 0.01, target="rules"),appearance = list(lhs = "CLEMENTINES")))
 
 #check if tm is attched; if yes then detach
