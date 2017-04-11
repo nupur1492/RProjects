@@ -38,11 +38,11 @@ train_nzv <- nearZeroVar(df_train_pixel)
 test_nzv <-  nearZeroVar(df_test_pixel)
 # nearZeroVar selects 532 out of 784 factors/pixels
 
-# create a new datafrme with these 532 factors. 
+# create a new dataframe with these 532 factors. 
 # This dataframe will be used for further preprocessing
 
 df_train_postnzv <- df_train_pixel[,-train_nzv]
-df_test_postnzv <- df_test_pixel[,-train_nzv]
+df_test_postnzv <- df_train_pixel[,-train_nzv]
 
 # Preprocess using PCA
 train_preProcValues <- preProcess(df_train_postnzv, method=c("pca"))
@@ -83,22 +83,23 @@ LR_confusionMatrix
 #Error in confusionMatrix.default(LR_Fitted, df_train_final$label) : 
 #the data cannot have more levels than the reference
 
+table(factor(LR_Fitted, levels=min(x_testTransformed):max(x_testTransformed)),
+      factor(x_testTransformed, levels=min(x_testTransformed):max(x_testTransformed)))
+
+
 LR_accuracy <- as.numeric(LR_confusionMatrix$overall["Accuracy"])
 
 
-# SVM
-library(e1071)
-SVM_Model <- svm(label ~., data = df_train_final)
 
 # Random forests:
 library(randomForest)
 
-samplerows <- sample(1:nrow(df_train_pixel), nrow(df_train)*0.8, replace=FALSE)
+samplerows <- sample(1:nrow(df_train_pixel), nrow(df_train)*0.6, replace=FALSE)
 df_train_rf <- x_trainTransformed[samplerows,]
 df_test_rf <- x_trainTransformed[-samplerows,]
 
-train_labels <- as.factor(x_trainTransformed[samplerows,]$label)
-test_labels<- as.factor(x_trainTransformed[-samplerows]$labels)
+train_labels <- as.factor(df_train[samplerows,]$label)
+test_labels<- as.factor(df_train[-samplerows]$labels)
 
 
 RF_Model <- randomForest(df_train_rf, train_labels, ntree = 10)
@@ -106,3 +107,9 @@ RF_Model <- randomForest(df_train_rf, train_labels, ntree = 10)
 predict_labels <- predict(RF_Model, df_test_rf)
 
 table(predict_labels)
+
+
+
+# SVM
+library(e1071)
+SVM_Model <- svm(label ~., data = df_train_final)
