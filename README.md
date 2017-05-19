@@ -53,4 +53,4 @@ Curated list of R DataScience projects I have implemented to get my feet wet in 
   ## Mining Recomendation based on Market Basket Analysis
   
   # Contributing
-  
+  Your contributions are always welcome!
