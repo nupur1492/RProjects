@@ -1,6 +1,7 @@
 # RProjects
 
 Curated list of R DataScience projects I have implemented to get my feet wet in the world of data science.
+You can add your solutions under each project title. Feel free to contribute :)
 
 - [R DataScience Projects](#r-datascience-projects)
   - [Data Wrangling of Seattle Traffic data](#data-wrangling-of-seattle-traffic-data)
