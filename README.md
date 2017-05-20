@@ -52,6 +52,10 @@ You can add your solutions under each project title. Feel free to contribute :)
   # Upcoming R Data Science Projects 
   ## Enron Data Analysis
   ## Mining Recomendation based on Market Basket Analysis
+  ## Other Great Toy projects
+  - Great Ideas for Toy Projects [Link](https://www.quora.com/What-are-some-good-toy-problems-in-data-science)
   
   # Contributing
   Your contributions are always welcome!
+  You can add your solution and problem statements./
+  Inspiration for datasets: Be creative with this awesome set of [public datasets](https://github.com/caesar0301/awesome-public-datasets)
