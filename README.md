@@ -54,6 +54,7 @@ You can add your solutions under each project title. Feel free to contribute :)
   ## Mining Recomendation based on Market Basket Analysis
   ## Other Great Toy projects
   - Great Ideas for Toy Projects [Link](https://www.quora.com/What-are-some-good-toy-problems-in-data-science)
+  - [Awesome Data Science Ideas](https://github.com/JosPolfliet/awesome-datascience-ideas)
   
   # Contributing
   Your contributions are always welcome!
