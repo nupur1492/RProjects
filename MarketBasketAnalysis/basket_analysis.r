@@ -58,7 +58,6 @@ if(sessionInfo()['basePkgs']=="tm" | sessionInfo()['otherPkgs']=="tm"){
   detach(package:tm, unload=TRUE)
 }
 
-
 #view rules
 inspect(basket_rules)
 
@@ -67,7 +66,28 @@ df_basket <- as(basket_rules,"data.frame")
 df_basket$confidence <- df_basket$confidence * 100
 df_basket$support <- df_basket$support * nrow(df)
 
-write.csv(df_basket,"Rules_20.csv",row.names = FALSE)
+
+# Mining rules for recommendations:
+
+# split lhs and rhs into two columns
+library(reshape2)
+df_basket <- transform(df_basket, rules = colsplit(rules, pattern = "=>", names = c("lhs","rhs")))
+
+# Remove curly brackets around rules
+df_basket$rules$lhs <- gsub("[[:punct:]]", "", df_basket$rules$lhs)
+df_basket$rules$rhs <- gsub("[[:punct:]]", "", df_basket$rules$rhs)
+
+# convert to chracter
+df_basket$rules$lhs <- as.character(df_basket$rules$lhs)
+df_basket$rules$rhs <- as.character(df_basket$rules$rhs)
+
+library(stringi)
+library(dplyr)
+df_basket$rules %>%
+  filter(stri_detect_fixed(lhs, "yogurt")) %>%
+  select(rhs)
+
+
 
 #plot the rules
 library(arulesViz)
