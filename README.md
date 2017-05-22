@@ -31,6 +31,7 @@ You can add your solutions under each project title. Feel free to contribute :)
   - Learned how to work with R packages like ggplot2, dplyr, reshape2, plotting histograms, scatterplots graphs with multiple variables and how these can be used to perform a basic exploratory analysis on a dataset.
 
   ## Game of Thrones Analysis
+  - Exploratory data analysis on battles and character deaths in the Game of Thrones series using R
   ## Handwriting Character Recognition Analysis
   - Studying handwriting character recognition as a part of a Kaggle competition 
   - Identifying handwritten digits using MNIST data by performing Logistic regression and Random Forests
