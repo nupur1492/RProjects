@@ -1,0 +1,120 @@
+---
+title: "Implementation of Naive Bayes Classifier"
+output: html_notebook
+---
+
+Implementation of Naive Bayes Classifier
+
+What is Naive Bayes?
+Naive Bayes is a classification technique based on the Bayes' Theorem. 
+According to Wikipedia, Bayes' Theorem is defined as  the probability of an event, based on prior knowledge of conditions that might be related to the event. 
+
+For instance, if a disease like diabetes is related to the age of a person, then a person's age can be used to more accurately assess the likelihood of the person having diabetes based on his age as opposed to predicting probability without making an assessment without prior information
+
+
+The Naive Bayes Theorem can be mathematically defined as:
+
+P(A | B) = P(A) * P(B | A) / P(B)
+
+For better understanding, this means:
+  P(diabetes/age) = P(diabetes) * P(age/diabetes) / P(age)
+ 
+Thus, a Naive Bayes Classifier determines the outcome based on prior information or evidence using this formula.
+The assumption is that some attributes like age and likelihood of diabetes are dependent on each other and this assumption helps in determining the probability of new data.
+  
+  
+Implementaton in R:
+
+Data: Habermans Data
+Attribute Information:
+   1. Age of patient at time of operation (numerical)
+   2. Patient's year of operation (year - 1900, numerical)
+   3. Number of positive axillary nodes detected (numerical)
+   4. Survival status (class attribute)
+         1 = the patient survived 5 years or longer
+         2 = the patient died within 5 year
+
+Step 1: Read data
+```{r}
+df_haberman <- read.csv("haberman_data.csv")
+str(df_haberman)
+df_haberman$Survival <- as.factor(df_haberman$Survival)
+```
+
+Aim is to predict whether enrolment was rejected or accepted based on other attributes using Naive Bayes
+Splitting data into training and testing sets(80-20)
+```{r}
+library(caTools)
+set.seed(1234)
+
+sample = sample.split(df_haberman, SplitRatio = 0.8)
+
+df_train <- subset(df_haberman, sample == TRUE)
+df_test <- subset(df_haberman, sample == FALSE)
+
+df_test_data <- df_test[, c(1,2,3)]
+```
+
+```{r}
+
+plot(as.factor(df_haberman$Survival))
+```
+
+```{r}
+library(ggplot2)
+ggplot(data = df_haberman, aes(x = Survival, y = Age)) + geom_point()
+
+
+
+```
+
+Naive Bayes'
+```{r}
+library(e1071)
+naive_bayes <- naiveBayes(Survival~Age , data = df_train)
+summary(naive_bayes)
+
+```
+
+Predict:
+```{r}
+predict_nb <- predict(naive_bayes, newdata = df_test$Age)
+predict_nb
+```
+
+```{r}
+conf_matrix <- table(predict_nb, df_test$Survival)
+conf_matrix
+```
+
+The confusion matrix has predicted values as rows and the actual values as columns. From the confusion matrix, the conclusion is that 58 instances were correctly predicted as Class 1 whereas 18 were predicted as Class 1 but actually belonged to Class 2.
+Thus, the model correctly classified all 58 instances of Class 1 but none of those for Class 2.
+
+The overall ccuracy can be calculated as-
+  58/(58+18) = 76.31
+
+
+Applying the Naive Bayes' model, the model obtained has 76.3% acuracy.
+
+However, this model only considers Age as one of the factors. The next step will be to build a model with all three attributes to check if results in better accuracy.
+```{r}
+naive_bayes_all <- naiveBayes(Survival ~ ., data = df_train)
+```
+
+Predict using test data
+```{r}
+predict_allAttributes <- predict(naive_bayes_all, df_test[, -1])
+predict_allAttributes
+```
+
+```{r}
+confusion_matrix <- table(predict_allAttributes, df_test$Survival)
+confusion_matrix
+```
+
+The model built using all the attributes in the data give a different model that the one built using Age.
+Here, 54 out of 58(54+4) are corretly classified as Class 1 and 4 out of 18(4+14) of Class 2. However, the overall accuracy is still calculated as-
+ (54+4)/76 = 76.31%
+ 
+ Thus, the overall prediction accuracy remains unchanged.
+ 
