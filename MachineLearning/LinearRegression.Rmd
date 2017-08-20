@@ -1,0 +1,262 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Ordinary Least Squares Regression
+
+Regression is a statistical technique to analyze the relationship between a response variable and one or more predictors. If the relationship is linear, a straight line can be fit to the data using the following equation-
+  y = mx + c
+Here, y is the outcome variable, m is the gradient or slope of the line, x is the predictor variable and c is the intercept on the line.
+
+For example, studing the relationship between size of a house in square feet and its price. Linear modelling helps in predicting the price of a house based on the size.
+Thus, the above equation can be written as-
+  price = m * size + intercept
+
+Implementation:
+
+Data: Turnstile Data of NYC Subway
+
+
+```{r}
+df_turnstile <- read.csv("turnstile_data_master_with_weather.csv")
+str(df_turnstile)
+```
+
+
+The aim is to predict Entriesn_hourly i.e. number of hourly entries at the NYC Subway based on other predictor variables.
+
+
+Some of the predictor variables are not of any use; X is the row number which won't be useful in analysis.
+DESCn only has one value in the entire dataset and can be omitted. 
+
+```{r}
+df_turnstile$X <- NULL
+df_turnstile$DESCn <- NULL
+
+```
+
+Exploratory Data Analysis:
+
+Scatterplots are a good way of understand the linear relationship between two variables. 
+Following is a scatterplot between the Hour of the day and the nimber of entries, colored by whether there was raining or not.
+
+```{r}
+library(ggplot2)
+library(scales)
+
+ggplot(df_turnstile, aes(x = as.Date(DATEn), y = ENTRIESn_hourly)) + geom_point() + scale_x_date(breaks = seq(as.Date("2011-05-01"), as.Date("2011-05-30"), by = "1 day"),labels=date_format("%d")) 
+
+``` 
+
+This first graph shows the distribution of the number of entries over the month of May 2011. The distribution shows 5 days of high entries and 2 days where it is comparitively less; explaining the weekdays and weekend entries.
+
+
+
+Studying the number of turnstile entries based on the Hour of the day.
+```{r}
+
+ggplot(df_turnstile, aes(x = Hour, y = ENTRIESn_hourly)) + geom_point(color = "red", alpha = 0.1) + scale_x_continuous(limits = c(0,25), breaks = seq(0,25,1))
+```
+
+
+This graph shows the number of entries throughout the day. (Hour 1 is the hour from Midnight to 12.59 am, Hour 2 is 1am to 1.59 am and so on)
+The transparency in the graph shows the level of number of entries; for example, the darker the red color, the more number of data points lie at that point in the graph
+There are some spikes in the data like at Hour 1, hour 13 and Hour 22.
+
+The next step would be to investigate this relationship further and see how other factors come into play.
+
+```{r}
+df_turnstile$DATEn <- as.Date(df_turnstile$DATEn)
+
+df_turnstile$dayofweek <- weekdays(df_turnstile$DATEn)
+
+ggplot(data = df_turnstile, aes(x = Hour, y = ENTRIESn_hourly, color = dayofweek)) + geom_point() + scale_x_continuous(limits = c(0,25), breaks = seq(0,25,1))
+```
+
+The above graph is an add on to the previous one. The graph is colored by the day of the week. Now, it can be seen that the spike at Hour 1 is on Saturday. (Maybe people returning home after Saturday night partying).
+However, the spikes at Hour 13 and Hour 22 are on Weekdays (Hour 13 is Lunch hour and people going home from work between 10 and 11 pm may be the explanation).
+
+```{r}
+ggplot(data = df_turnstile, aes(x = factor(dayofweek), y = ENTRIESn_hourly)) + geom_point()
+```
+
+
+This graph shows the distribution of the number of entries over the week. Weekdays have a similar number of entries whereas weekends are less than the rest. This makes sense intuitively since people take the subway on weekdays to commute to work; whereas the frequency of trains is usually less on weekends hence the lesser number of entries.
+
+The next step is to study how weather conditions affect these entires over the week.
+
+
+
+
+```{r}
+
+ggplot(df_turnstile, aes(x = Hour, y = ENTRIESn_hourly, color = factor(rain))) + geom_point() + scale_x_continuous(limits = c(0,25), breaks = seq(0,25,1))
+```
+
+This graph explains the spikes at Hour 13 and Hour 22; the reason being more people using the subway due to the rain.
+
+```{r}
+
+ggplot(data = df_turnstile, aes(x = maxtempi, y = ENTRIESn_hourly, shape = factor(rain))) + geom_point(aes(color = Hour)) + scale_x_continuous(limits = c(55,90), breaks = seq(55,90,5))
+```
+
+
+
+
+
+Building a correlation matrix:
+A correlation matrix is the best way to understand if two factors are collinear. It calculates the correlation coefficient between each factor and others. Correlation basically shows how change in one factor is likely to affect another.
+
+The correlation coefficient is a number between -1 and 1. A value of 0 denotes no correlation between two factors; coeffiecient 1 denotes complete position correlation and a value of -1 denotes complete negative correlation.
+Thus, if two predictor variables are highly correlated, positively or negatively (i.e. >=0.5 or <=(-0.5)), considering both in the analyses will only increase complexity without giving any real value.
+In such cases, any one of the factors can be omitted.
+
+
+```{r}
+df_turnstile$rain <- as.numeric(df_turnstile$rain)
+df_turnstile$Hour <- as.numeric(df_turnstile$Hour)
+nums <- sapply(df_turnstile, is.numeric)
+correlation_matrix <- cor(df_turnstile[, nums], method = "spearman")
+
+require(corrplot)
+corrplot(correlation_matrix, method = "color", type = "lower")
+```
+
+From the above plot, it is evident that rain and fog are highly correlated(0.44) and hence either one of them can be neglected while building the model.
+
+
+Significance Tests
+Chi Square Test/ Pearsons Chi square test
+Goodness of fit
+Independence of variables (if dependent and independent are statistically related)
+
+Mann Whitney U test
+
+
+
+
+
+
+
+Building a model:
+
+Split data into train and test
+```{r}
+df_turnstile$rain <- as.factor(df_turnstile$rain)
+df_turnstile$Hour <- as.numeric(df_turnstile$Hour)
+set.seed(1234)
+
+require(caTools)
+sample <- sample.split(df_turnstile, SplitRatio = 0.75)
+
+df_train <- subset(df_turnstile, sample == TRUE)
+df_test <- subset(df_turnstile, sample == FALSE)
+
+
+
+f = ENTRIESn_hourly ~ Hour + meandewpti + meanpressurei + meandewpti + rain + precipi + meantempi
+
+linear_model1 <- lm(formula = f, data = df_train)
+
+summary(linear_model1)
+```
+
+
+```{r}
+f = ENTRIESn_hourly ~ Hour + maxdewpti + maxpressurei + maxdewpti + rain + precipi + maxtempi
+
+linear_model2 <- lm(formula = f, data = df_train)
+
+summary(linear_model2)
+```
+
+
+```{r}
+f = ENTRIESn_hourly ~ Hour + maxdewpti + maxpressurei + maxdewpti + rain + precipi + maxtempi + 
+                      mindewpti + minpressurei + mintempi + 
+                      meandewpti + meanpressurei + meantempi
+linear_model3 <- lm(formula = f, data = df_train)
+
+summary(linear_model3)
+```
+
+
+
+```{r}
+f = ENTRIESn_hourly ~ rain + precipi + maxtempi + 
+                      mindewpti + mintempi + 
+                      meandewpti + meantempi
+linear_model3 <- lm(formula = f, data = df_train)
+
+summary(linear_model3)
+
+
+```
+
+
+Predict:
+The predict() function is used to test the model fit against the test set. The difference between the predicted values and actual values will help determine the accuracy of the model.
+```{r}
+predict_linear <- predict(linear_model3, newdata = df_test[, c("rain", "precipi", "maxtempi", 
+                                                              "mindewpti", "mintempi","meandewpti", "meantempi")])
+
+mse <- mean((df_test$ENTRIESn_hourly - predict_linear)^2)
+sqrt(mse)
+
+```
+
+
+
+Stepwise Regression
+Stepwise Regression can be used to find the best subset of factors instead of manually modifying the formula each time.
+Stepwise regression performs feature selection and builds the model. The subset is selected based on a parameter called AIC(Akaike Information Criterion) and RSS(Residual Sum of Squares)
+```{r}
+f = ENTRIESn_hourly ~ Hour + maxdewpti + maxpressurei + maxdewpti + rain + precipi + maxtempi + 
+                      mindewpti + minpressurei + mintempi + 
+                      meandewpti + meanpressurei + meantempi
+model_stepwise <- lm(f, data = df_train)
+
+fit <- step(model_stepwise)
+summary(fit)
+```
+
+Residual Sum of Squares:
+It is the sum of the squared difference between the predicted and the actual values. 
+Lower the RSS, better the fit.
+
+
+AIC- Akaike Information Criterion
+According to Wikipedia, IC provides a means for model selection. It estimates the quality of the model, relative to other models
+AIC enables comparison of different models built on the same dataset and selects the best. A lower AIC value signifies a better model. However, it is a relative comparison technique i.e. it gives the best model with respect to others; however there is no way to determine if the best model is actually applicable and useful.
+In addition, the AIC also penalises extra variables and hence gives preference to simpler models.
+
+However, AIC does not help in solving the problem of multicollinearity. Thus, the factors that are collinear must first be dealt with before performing stepwise regression and using AIC to select best fit.
+
+From the above summary, the model with best fit is the one that uses the formula-
+ENTRIESn_hourly ~ Hour + maxdewpti + maxpressurei + rain + maxtempi + 
+    minpressurei + mintempi + meanpressurei + meantempi
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
