@@ -237,6 +237,20 @@ From the above summary, the model with best fit is the one that uses the formula
 ENTRIESn_hourly ~ Hour + maxdewpti + maxpressurei + rain + maxtempi + 
     minpressurei + mintempi + meanpressurei + meantempi
 
+```{r}
+f = ENTRIESn_hourly ~ Hour + maxdewpti + maxpressurei + rain + maxtempi + 
+    minpressurei + mintempi + meanpressurei + meantempi
+
+model_final  <- lm(f, data = df_train)
+
+predict_final <- predict(model_final, newdata = df_test[, c("Hour", "maxdewpti", "maxpressurei",                                                                 "rain", "maxtempi", "minpressurei",                                                                "mintempi", "meanpressurei", "meantempi")])
+
+mse <- mean((df_test$ENTRIESn_hourly - predict_final)^2)
+sqrt(mse)
+```
+
+
+Thus, the RMSE went down from 2331 to 2292 which shows that this model is better than the previous one.
 
 
 
@@ -244,19 +258,3 @@ ENTRIESn_hourly ~ Hour + maxdewpti + maxpressurei + rain + maxtempi +
 
 
 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
